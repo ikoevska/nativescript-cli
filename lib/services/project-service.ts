@@ -146,4 +146,3 @@ export class ProjectService implements IProjectService {
 	}
 }
 $injector.register("projectService", ProjectService);
-
