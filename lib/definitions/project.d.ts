@@ -19,6 +19,7 @@ interface IPlatformProjectService {
 	createProject(platform: string): IFuture<void>;
 	buildProject(platform: string): IFuture<void>;
 	prepareProject(normalizedPlatformName: string, platforms: string[]): IFuture<void>;
+	deployProject(platform: string): IFuture<void>;
 }
 
 interface IPlatformSpecificProjectService {
@@ -28,4 +29,5 @@ interface IPlatformSpecificProjectService {
 	interpolateData(projectRoot: string): void;
 	executePlatformSpecificAction(projectRoot: string, frameworkDir: string): void;
 	buildProject(projectRoot: string): IFuture<void>;
+	deployProject(projectRoot: string): IFuture<void>;
 }

@@ -10,6 +10,8 @@ class PlatformsData implements IPlatformsData {
 			frameworkPackageName: "tns-ios",
 			platformProjectService: $injector.resolve("iOSProjectService"),
 			normalizedPlatformName: "iOS",
+			packageExtName: ".ipa",
+			buildOutputPath: "",
 			projectRoot: "",
 			targetedOS: ['darwin']
 		},
@@ -17,13 +19,18 @@ class PlatformsData implements IPlatformsData {
 			frameworkPackageName: "tns-android",
 			platformProjectService: $injector.resolve("androidProjectService"),
 			normalizedPlatformName: "Android",
+			packageExtName: ".apk",
+			buildOutputPath: "",
 			projectRoot: ""
 		}
 	};
 
 	constructor($projectData: IProjectData) {
 		this.platformsData["ios"].projectRoot = "";
+		this.platformsData["ios"].projectRoot = "";
+
 		this.platformsData["android"].projectRoot = path.join($projectData.platformsDir, "android");
+		this.platformsData["android"].buildOutputPath = path.join($projectData.platformsDir, "android", "bin");
 	}
 
 	public get platformsNames() {
@@ -121,10 +128,19 @@ export class PlatformService implements IPlatformService {
 
 	public buildPlatform(platform: string): IFuture<void> {
 		return (() => {
-			platform = platform.toLocaleLowerCase();
+			platform = platform.toLowerCase();
 			this.validatePlatform(platform);
 
 			this.$platformProjectService.buildProject(platform).wait();
+		}).future<void>()();
+	}
+
+	public deploy(platform: string): IFuture<void> {
+		return (() => {
+			platform = platform.toLowerCase();
+			this.validatePlatform(platform);
+
+			this.$platformProjectService.deployProject(platform).wait();
 		}).future<void>()();
 	}
 

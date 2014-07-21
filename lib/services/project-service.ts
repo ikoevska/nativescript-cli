@@ -158,6 +158,7 @@ class PlatformProjectService implements IPlatformProjectService {
 		private $platformsData: IPlatformsData,
 		private $projectData: IProjectData,
 		private $logger: ILogger,
+		private $errors: IErrors,
 		private $fs: IFileSystem) { }
 
 	public createProject(platform: string): IFuture<void> {
@@ -241,6 +242,35 @@ class PlatformProjectService implements IPlatformProjectService {
 			this.$logger.out("Project successfully built");
 		}).future<void>()();
 	}
+
+	public deployProject(platform: string): IFuture<void> {
+		return (() => {
+			var platformData = this.$platformsData.getPlatformData(platform);
+
+			// Get latest package that is produced from build
+			var candidates = this.$fs.readDirectory(platformData.buildOutputPath).wait();
+			var packages = _.filter(candidates, candidate => {
+				return path.extname(candidate) === platformData.packageExtName;
+			}).map(currentPackage => {
+				return {
+					pkg: path.join(platformData.buildOutputPath, currentPackage),
+					time: this.$fs.getFsStats(currentPackage).wait().mtime
+				};
+			}).sort((pkg1, pkg2) => {
+				return 	pkg1.time > pkg2.time ? -1 :
+						pkg1.time < pkg2.time ? 1 : 0;
+			});
+
+			if(packages.length === 0) {
+				this.$errors.fail("No %s found in %s directory", platformData.packageExtName, platformData.buildOutputPath)
+			}
+
+			this.$logger.out("Using %s", packages[0].pkg);
+
+			platformData.platformProjectService.deployProject(platformData.projectRoot).wait();
+			this.$logger.out("Project successfully deployed");
+		}).future<void>()();
+	}
 }
 $injector.register("platformProjectService", PlatformProjectService);
 
@@ -322,6 +352,12 @@ class AndroidProjectService implements IPlatformSpecificProjectService {
 			}
 
 			this.spawn('ant', args);
+
+		}).future<void>()();
+	}
+
+	public deployProject(projectRoot: string): IFuture<void> {
+		return (() => {
 
 		}).future<void>()();
 	}
