@@ -19,5 +19,7 @@ $injector.requireCommand("run", "./commands/run");
 $injector.requireCommand("prepare", "./commands/prepare");
 $injector.requireCommand("build", "./commands/build");
 
+$injector.requireCommand("dev-post-install", "./commands/post-install");
+
 $injector.require("npm", "./node-package-manager");
 $injector.require("propertiesParser", "./properties-parser");
