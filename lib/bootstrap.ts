@@ -12,6 +12,8 @@ $injector.require("projectTemplatesService", "./services/project-templates-servi
 $injector.require("platformsData", "./services/platform-service");
 $injector.require("platformService", "./services/platform-service");
 
+$injector.require("versioningService", "./services/versioning-service");
+
 $injector.requireCommand("create", "./commands/create-project");
 $injector.requireCommand("platform|*list", "./commands/list-platforms");
 $injector.requireCommand("platform|add", "./commands/add-platform");

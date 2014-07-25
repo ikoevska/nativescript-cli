@@ -11,9 +11,10 @@ class IOSProjectService implements  IPlatformProjectService {
 	private static XCODEBUILD_MIN_VERSION = "5.0";
 
 	constructor(private $projectData: IProjectData,
-				private $fs: IFileSystem,
-				private $childProcess: IChildProcess,
-				private $errors: IErrors) { }
+		private $fs: IFileSystem,
+		private $childProcess: IChildProcess,
+		private $errors: IErrors,
+		private $versioningService: IVersioningService) { }
 
 	public validate(): IFuture<void> {
 		return (() => {
@@ -57,13 +58,18 @@ class IOSProjectService implements  IPlatformProjectService {
 
 	public getPreparedProjectLocation(projectRoot: string, normalizedPlatformName: string): IFuture<string> {
 		return (() => {
-			var projectRoot = "";
 			var appSourceDirectory = path.join(this.$projectData.projectDir, constants.APP_FOLDER_NAME);
-			var appTargetDirectory = path.join(projectRoot, this.$projectData.projectName);
+			var appDestinationDirectory = path.join(projectRoot, this.$projectData.projectName);
+			shell.cp("-r", appSourceDirectory, appDestinationDirectory);
 
-			shell.cp("-r", appSourceDirectory, appTargetDirectory);
+			// Copy bridge into project
+			var frameworkDestinationDirectory = path.join(projectRoot, "lib");
+			this.$fs.ensureDirectoryExists(frameworkDestinationDirectory).wait();
 
-			return path.join(appTargetDirectory, constants.APP_FOLDER_NAME);
+			var frameworkSourcePath = path.join(this.$versioningService.getCachedFrameworkDirectory().wait(), constants.IOS_BRIDGE_FILE_NAME);
+			shell.cp("-f", frameworkSourcePath, frameworkDestinationDirectory);
+
+			return path.join(appDestinationDirectory, constants.APP_FOLDER_NAME);
 		}).future<string>()();
 	}
 
@@ -73,7 +79,7 @@ class IOSProjectService implements  IPlatformProjectService {
 				"-xcconfig", path.join(projectRoot, "build.xcconfig"),
 				"-project", path.join(projectRoot, this.$projectData.projectName + ".xcodeproj"),
 				"-target", this.$projectData.projectName,
-				"-configuration", "Release",
+				"-configuration", options.release,
 				"-sdk", "iphoneos",
 				"build",
 				"ARCHS=\"armv7 armv7s arm64\"",

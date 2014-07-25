@@ -7,3 +7,8 @@ interface INodePackageManager {
 interface IPropertiesParser {
 	createEditor(filePath: string): IFuture<any>;
 }
+
+interface IVersioningService {
+	getCachedFrameworkDirectory(): IFuture<string>;
+	getLatestFrameworkVersion(): IFuture<string>;
+}
