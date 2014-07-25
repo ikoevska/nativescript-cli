@@ -4,6 +4,7 @@ import path = require("path");
 import shell = require("shelljs");
 import constants = require("./../constants");
 import helpers = require("./../common/helpers");
+import options = require("./../options");
 
 class IOSProjectService implements  IPlatformProjectService {
 	private static XCODE_PROJECT_EXT_NAME = ".xcodeproj";
@@ -60,9 +61,20 @@ class IOSProjectService implements  IPlatformProjectService {
 		}).future<void>()();
 	}
 
-	public buildProject(): IFuture<void> {
+	public buildProject(projectRoot: string): IFuture<void> {
 		return (() => {
-
+			var args = [
+				"-xcconfig", path.join(projectRoot, "build.xcconfig"),
+				"-project", path.join(projectRoot, this.$projectData.projectName + ".xcodeproj"),
+				"-target", this.$projectData.projectName,
+				"-configuration", "Release",
+				"-sdk", "iphoneos",
+				"build",
+				"ARCHS=\"armv7 armv7s arm64\"",
+				"VALID_ARCHS=\"armv7 armv7s arm64\"",
+				"CONFIGURATION_BUILD_DIR=" + path.join(projectRoot, "build") + ""
+			];
+			this.$childProcess.spawn("xcodebuild", args, {cwd: options, stdio: 'inherit'});
 		}).future<void>()();
 	}
 
