@@ -1,3 +1,2 @@
-process.argv[2] = 'dev-post-install';
-require('./bin/nativescript.js');
-
+var childProcess =  require("child_process");
+childProcess.spawn('node', ['bin/nativescript.js', 'dev-post-install']);
