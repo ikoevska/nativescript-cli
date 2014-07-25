@@ -42,19 +42,23 @@ class AndroidProjectService implements IPlatformProjectService {
 		}).future<any>()();
 	}
 
-	public interpolateData(projectRoot: string): void {
-		// Interpolate the activity name and package
-		var stringsFilePath = path.join(projectRoot, 'res', 'values', 'strings.xml');
-		shell.sed('-i', /__NAME__/, this.$projectData.projectName, stringsFilePath);
-		shell.sed('-i', /__TITLE_ACTIVITY__/, this.$projectData.projectName, stringsFilePath);
-		shell.sed('-i', /__NAME__/, this.$projectData.projectName, path.join(projectRoot, '.project'));
-		shell.sed('-i', /__PACKAGE__/, this.$projectData.projectId, path.join(projectRoot, "AndroidManifest.xml"));
+	public interpolateData(projectRoot: string): IFuture<void> {
+		return (() => {
+			// Interpolate the activity name and package
+			var stringsFilePath = path.join(projectRoot, 'res', 'values', 'strings.xml');
+			shell.sed('-i', /__NAME__/, this.$projectData.projectName, stringsFilePath);
+			shell.sed('-i', /__TITLE_ACTIVITY__/, this.$projectData.projectName, stringsFilePath);
+			shell.sed('-i', /__NAME__/, this.$projectData.projectName, path.join(projectRoot, '.project'));
+			shell.sed('-i', /__PACKAGE__/, this.$projectData.projectId, path.join(projectRoot, "AndroidManifest.xml"));
+		}).future<void>()();
 	}
 
-	public afterCreateProject(projectRoot: string) {
-		var targetApi = this.getTarget(projectRoot).wait();
-		this.$logger.trace("Android target: %s", targetApi);
-		this.runAndroidUpdate(projectRoot, targetApi).wait();
+	public afterCreateProject(projectRoot: string): IFuture<void> {
+		return (() => {
+			var targetApi = this.getTarget(projectRoot).wait();
+			this.$logger.trace("Android target: %s", targetApi);
+			this.runAndroidUpdate(projectRoot, targetApi).wait();
+		}).future<void>()();
 	}
 
 	public prepareProject(normalizedPlatformName: string, platforms: string[]): IFuture<void> {

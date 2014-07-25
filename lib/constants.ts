@@ -5,4 +5,5 @@ export var DEFAULT_PROJECT_ID = "com.telerik.tns.HelloWorld";
 export var DEFAULT_PROJECT_NAME = "HelloNativescript";
 export var APP_RESOURCES_FOLDER_NAME = "App_Resources";
 export var PROJECT_FRAMEWORK_FOLDER_NAME = "framework";
+export var IOS_PROJECT_NAME_PLACEHOLDER = "__PROJECT_NAME__";
 

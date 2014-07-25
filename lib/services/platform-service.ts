@@ -18,7 +18,7 @@ class PlatformsData implements IPlatformsData {
 				frameworkPackageName: "tns-ios",
 				normalizedPlatformName: "iOS",
 				platformProjectService: $iOSProjectService,
-				projectRoot: "",
+				projectRoot: path.join($projectData.platformsDir, "ios"),
 				targetedOS: ['darwin']
 			},
 			android: {
@@ -106,8 +106,8 @@ export class PlatformService implements IPlatformService {
 			// Need to remove unneeded node_modules folder
 			this.$fs.deleteDirectory(path.join("../", frameworkDir)).wait();
 
-			platformProjectService.interpolateData(platformData.projectRoot);
-			platformProjectService.afterCreateProject(platformData.projectRoot);
+			platformProjectService.interpolateData(platformData.projectRoot).wait();
+			platformProjectService.afterCreateProject(platformData.projectRoot).wait();
 
 			this.$logger.out("Project successfully created.");
 
