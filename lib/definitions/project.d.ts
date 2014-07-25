@@ -20,6 +20,6 @@ interface IPlatformProjectService {
 	createProject(projectRoot: string, frameworkDir: string): IFuture<void>;
 	interpolateData(projectRoot: string): IFuture<void>;
 	afterCreateProject(projectRoot: string): IFuture<void>;
-	prepareProject(normalizedPlatformName: string, platforms: string[]): IFuture<void>;
+	getPreparedProjectLocation(projectRoot: string, normalizedPlatformName: string): IFuture<string>;
 	buildProject(projectRoot: string): IFuture<void>;
 }

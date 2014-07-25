@@ -55,10 +55,16 @@ class IOSProjectService implements  IPlatformProjectService {
 		}).future<void>()();
 	}
 
-	public prepareProject(normalizedPlatformName: string, platforms: string[]): IFuture<void> {
+	public getPreparedProjectLocation(projectRoot: string, normalizedPlatformName: string): IFuture<string> {
 		return (() => {
+			var projectRoot = "";
+			var appSourceDirectory = path.join(this.$projectData.projectDir, constants.APP_FOLDER_NAME);
+			var appTargetDirectory = path.join(projectRoot, this.$projectData.projectName);
 
-		}).future<void>()();
+			shell.cp("-r", appSourceDirectory, appTargetDirectory);
+
+			return path.join(appTargetDirectory, constants.APP_FOLDER_NAME);
+		}).future<string>()();
 	}
 
 	public buildProject(projectRoot: string): IFuture<void> {

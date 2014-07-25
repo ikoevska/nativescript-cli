@@ -142,7 +142,21 @@ export class PlatformService implements IPlatformService {
 			var platformData = this.$platformsData.getPlatformData(platform);
 			var platformProjectService = platformData.platformProjectService;
 
-			platformProjectService.prepareProject(platformData.normalizedPlatformName, this.$platformsData.platformsNames).wait();
+			var appFilesLocation = platformProjectService.getPreparedProjectLocation(platformData.projectRoot, platformData.normalizedPlatformName).wait();
+			var files = helpers.enumerateFilesInDirectorySync(appFilesLocation);
+
+			var platformsAsString = this.$platformsData.platformsNames.join("|");
+
+			_.each(files, fileName => {
+				var platformInfo = PlatformService.parsePlatformSpecificFileName(path.basename(fileName), platformsAsString);
+				var shouldExcludeFile = platformInfo && platformInfo.platform !== platform;
+				if (shouldExcludeFile) {
+					this.$fs.deleteFile(fileName).wait();
+				} else if (platformInfo && platformInfo.onDeviceName) {
+					this.$fs.rename(fileName, path.join(path.dirname(fileName), platformInfo.onDeviceName)).wait();
+				}
+			});
+
 		}).future<void>()();
 	}
 
@@ -185,6 +199,18 @@ export class PlatformService implements IPlatformService {
 		}
 
 		return false;
+	}
+
+	private static parsePlatformSpecificFileName(fileName: string, platforms: string): any {
+		var regex = util.format("^(.+?)\.(%s)(\..+?)$", platforms);
+		var parsed = fileName.toLowerCase().match(new RegExp(regex, "i"));
+		if (parsed) {
+			return {
+				platform: parsed[2],
+				onDeviceName: parsed[1] + parsed[3]
+			};
+		}
+		return undefined;
 	}
 }
 $injector.register("platformService", PlatformService);
